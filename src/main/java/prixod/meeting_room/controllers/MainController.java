@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
 import prixod.meeting_room.calendar.CalendarView;
 import prixod.meeting_room.calendar.WeeklyCalendar;
 

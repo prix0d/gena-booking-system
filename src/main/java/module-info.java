@@ -8,6 +8,7 @@ module prixod.meeting_room {
     requires com.calendarfx.view;
 
     requires java.prefs;
+    requires java.sql;
 
     opens prixod.meeting_room to javafx.fxml;
     exports prixod.meeting_room;

@@ -1,6 +1,7 @@
 package prixod.meeting_room.database;
 
 import com.calendarfx.model.Entry;
+import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -8,7 +9,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Database {
     public static Meet meet;
-    private static ArrayList<String> rooms;
+    public static Entry<Meet> entry;
+    public static ObservableList<String> rooms;
 
     public static CopyOnWriteArrayList<Meet> data = new CopyOnWriteArrayList<>();
     private static String _login = "prixod";

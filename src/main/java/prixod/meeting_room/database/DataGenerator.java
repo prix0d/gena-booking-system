@@ -2,6 +2,8 @@ package prixod.meeting_room.database;
 
 import com.calendarfx.model.Entry;
 import com.calendarfx.model.Interval;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import prixod.meeting_room.calendar.WeeklyCalendar;
 
 import java.time.LocalDateTime;
@@ -12,12 +14,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class DataGenerator {
-    private static ArrayList<String> rooms = new ArrayList<String>(5);
+    private static ObservableList<String> rooms = FXCollections.observableArrayList();
     public static void FillDatabase(){
 
         for (int i = 0; i < 5; i++) {
             rooms.add("Room " + (i+1));
         }
+        Database.rooms = rooms;
 
         Date now = new Date();
         now.setTime(0);
