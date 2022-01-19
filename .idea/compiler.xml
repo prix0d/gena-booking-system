@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel target="11" />
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="prixod-meeting-room.main" options="--add-exports org.controlsfx.controls/impl.org.controlsfx.skin=prixod.meeting_room" />
+    </option>
+  </component>
+</project>
