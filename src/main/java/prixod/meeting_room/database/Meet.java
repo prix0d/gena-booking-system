@@ -18,7 +18,7 @@ public class Meet {
     public String location;
     public Integer duration;
 
-    public ObservableList<String> participants = FXCollections.observableArrayList();
+    public ObservableList<String> participants;
 
     public LocalDateTime start;
     public LocalDateTime end;
@@ -38,5 +38,6 @@ public class Meet {
         this.end = end;
         Interval interval = new Interval(start, end);
         this.duration = Integer.getInteger(Long.toString(interval.getDuration().toMinutes()));
+        participants = FXCollections.observableArrayList();
     }
 }

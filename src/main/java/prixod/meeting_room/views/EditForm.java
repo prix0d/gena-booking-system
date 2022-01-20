@@ -8,8 +8,11 @@ import javafx.collections.ObservableListBase;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import prixod.meeting_room.database.Database;
 import prixod.meeting_room.database.Meet;
@@ -51,15 +54,21 @@ public class EditForm extends Node {
         participantsList = new ListView<>(meet.participants);
     }
 
-    public Node CreateLayout(){
-        startDatePicker.setMinSize(150, 25);
-        endDatePicker.setMinSize(150, 25);
-        startTimePicker.setMinSize(150, 25);
-        endTimePicker.setMinSize(150, 25);
+    public VBox CreateLayout(){
+        startDatePicker.setMinSize(140, 25);
+        endDatePicker.setMinSize(140, 25);
+        startTimePicker.setMinSize(140, 25);
+        endTimePicker.setMinSize(140, 25);
+
+        startDatePicker.setMaxSize(140, 25);
+        endDatePicker.setMaxSize(140, 25);
+        startTimePicker.setMaxSize(140, 25);
+        endTimePicker.setMaxSize(140, 25);
 
         var root = new VBox();
-        root.setMinSize(300, 400);
-        root.setMaxSize(300, 400);
+        root.setPadding(new Insets(10));
+        root.setMinSize(310, 410);
+        root.setMaxSize(310, 410);
         title.setFont(Font.font(18));
         root.getChildren().add(title);
 
@@ -95,6 +104,7 @@ public class EditForm extends Node {
         hb2.getChildren().addAll(tf, participantAddButton, participantRemoveButton);
 
         root.getChildren().add(hb2);
+        root.setStyle("-fx-border-color: gray; -fx-border-radius: 10; -fx-background-radius: 12;");
 
         return root;
     }
