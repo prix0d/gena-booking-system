@@ -8,6 +8,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.InputEvent;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import prixod.meeting_room.MainApp;
@@ -27,7 +28,35 @@ public class WeekPage extends com.calendarfx.view.page.WeekPage{
     }
 
     private void init(){
-        setContextMenuCallback(new ContextMenuProvider());
+        setEntryEditPolicy(param -> {
+            var editOperation = param.getEditOperation();
+
+            return !editOperation.equals(EditOperation.CHANGE_START) && !editOperation.equals(EditOperation.CHANGE_END);
+        });
+
+        setContextMenuCallback(param -> {
+            var createOption = new MenuItem("Create Entry");
+            createOption.setOnAction(event -> {
+                Stage stage = (Stage) this.getScene().getWindow();
+                try {
+                    Parent pane = FXMLLoader.load(MainApp.class.getResource("edit.fxml"));
+                    stage.setScene(new Scene(pane));
+                    stage.setMaximized(true);
+                    stage.show();
+
+                    Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                    stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
+                    stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
+                    Entry<Meet> entry = new Entry<Meet>();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            ContextMenu contextMenu = new ContextMenu(createOption);
+            return contextMenu;
+        });
+
         setEntryContextMenuCallback(param -> {
             var entryView = param.getEntryView();
             var control = param.getDateControl();
@@ -50,7 +79,6 @@ public class WeekPage extends com.calendarfx.view.page.WeekPage{
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                SceneChanger.ChangeScene(stage, "edit");
 
             });
             var deleteOption = new MenuItem("Delete");

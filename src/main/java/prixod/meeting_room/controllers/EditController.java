@@ -21,6 +21,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import prixod.meeting_room.MainApp;
+import prixod.meeting_room.SceneChanger;
 import prixod.meeting_room.calendar.WeeklyCalendar;
 import prixod.meeting_room.database.Database;
 import prixod.meeting_room.database.Meet;
@@ -29,11 +30,13 @@ import prixod.meeting_room.views.EditForm;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 public class EditController implements Initializable {
     @FXML
     private VBox root;
+    private HBox formRoot;
 
     private Button cancelButton;
     private Button deleteButton;
@@ -42,12 +45,22 @@ public class EditController implements Initializable {
 
     private ObservableList<EditForm> forms = FXCollections.observableArrayList();
     private ObservableList<Meet> meets = FXCollections.observableArrayList();
+    private ArrayList<Box> boxes = new ArrayList<>();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        EditForm ef1 = new EditForm(Database.entry);
+        EditForm ef1;
+        if (Database.entry != null) {
+            ef1 = new EditForm(Database.entry);
+        }
+        else {
+            ef1 = new EditForm();
+        };
         HBox hb1 = new HBox();
-        hb1.getChildren().add(ef1.CreateLayout());
+        formRoot = hb1;
+        VBox node = ef1.CreateLayout();
+        hb1.getChildren().add(node);
+        boxes.add(new Box(node, ef1));
         hb1.setAlignment(Pos.CENTER);
         hb1.setMinHeight(400);
         hb1.setSpacing(100);
@@ -57,6 +70,9 @@ public class EditController implements Initializable {
         hb2.setAlignment(Pos.CENTER);
         hb2.setSpacing(20);
         cancelButton = new Button("Cancel");
+        cancelButton.setOnAction(event -> {
+            SceneChanger.ChangeScene((Stage) root.getScene().getWindow(), "main");
+        });
         deleteButton = new Button("Delete event");
         saveButton = new Button("Save");
         saveButton.setOnAction(event -> Save());
@@ -76,31 +92,46 @@ public class EditController implements Initializable {
         plus.setOnMouseClicked(event -> AddEditForm(hb1));
     }
 
+    private class Box{
+        public VBox node;
+        public EditForm form;
+
+        public Box(VBox node, EditForm form){
+            this.node = node;
+            this.form = form;
+        }
+
+        public Box(){
+
+        }
+    }
+
     private void AddEditForm(HBox root){
         var entry = new Entry<Meet>();
         var meet = new Meet(entry);
         entry.setUserObject(meet);
         EditForm ef = new EditForm(entry);
-        root.getChildren().add(forms.size(), ef.CreateLayout());
+        VBox node = ef.CreateLayout();
+        root.getChildren().add(forms.size()-1, node);
+        boxes.add(new Box(node, ef));
         forms.add(ef);
 
-        if (forms.size() == 3) root.getChildren().remove(3);
-    }
-
-    private void RouteToMain(){
-        Stage stage = (Stage) root.getScene().getWindow();
-        Parent pane;
-        try {
-            pane = FXMLLoader.load(MainApp.class.getResource("main.fxml"));
-            stage.setScene(new Scene(pane));
-            stage.setMaximized(true);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        if (forms.size() == 3) root.getChildren().remove(plus);
     }
 
     private void Save(){
-        forms.forEach(EditForm::Validate);
+        for (int i = 0; i < boxes.size(); i++) {
+            var box = boxes.get(i);
+            var form = box.form;
+            if (form.Validate()){
+                System.out.println(Database.data.size());
+                if(Database.TryUpdateEntry(form)) {
+                    System.out.println(Database.data.size());
+                    formRoot.getChildren().remove(box.node);
+                }
+                formRoot.getChildren().remove(box.node);
+            }
+        }
+
     }
 }

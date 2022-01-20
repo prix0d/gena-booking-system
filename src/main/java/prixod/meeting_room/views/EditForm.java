@@ -21,10 +21,10 @@ import java.time.LocalTime;
 import java.util.List;
 
 public class EditForm extends Node {
-    private Entry<Meet> entry;
-    private Meet meet;
-    private ObservableList<String> participants;
-    public TextField title;
+    public Entry<Meet> entry;
+    public Meet meet;
+    public ObservableList<String> participants;
+    public TextField titleTextField;
     public DatePicker startDatePicker;
     public DatePicker endDatePicker;
     public TimeField startTimePicker;
@@ -35,17 +35,31 @@ public class EditForm extends Node {
     public Button participantRemoveButton;
     public Button participantAddButton;
     public Label errorLabel;
+    public VBox layout;
 
     public EditForm(Entry<Meet> entry){
-        this.entry = entry;
-        this.meet = (Meet) entry.getUserObject();
-        this.participants = FXCollections.observableArrayList(meet.participants);
-        LoadParams();
-        CreateLayout();
+        LoadParams(entry);
+        layout = CreateLayout();
     }
 
-    private void LoadParams(){
-        title = new TextField(entry.getTitle());
+    public EditForm(){
+        var entry = new Entry<Meet>();
+        Meet meet = new Meet(entry);
+        entry.setUserObject(meet);
+        LoadParams(entry);
+        layout = CreateLayout();
+    }
+
+    private void LoadParams(Entry<Meet> entry){
+        this.entry = entry;
+        try {
+            this.meet = (Meet) entry.getUserObject();
+        }
+        catch (Error err){
+            this.meet = new Meet(entry);
+        }
+        this.participants = FXCollections.observableArrayList(meet.participants);
+        titleTextField = new TextField(entry.getTitle());
         startDatePicker = new DatePicker(entry.getStartDate());
         endDatePicker = new DatePicker(entry.getEndDate());
         startTimePicker = new TimeField();
@@ -53,6 +67,8 @@ public class EditForm extends Node {
         endTimePicker = new TimeField();
         endTimePicker.setValue(entry.getEndTime());
         roomChoiceBox = new ChoiceBox<>(Database.rooms);
+        if (entry.getLocation() == null) roomChoiceBox.setValue(roomChoiceBox.getItems().get(0));
+        else roomChoiceBox.setValue(entry.getLocation());
         participantsListView = new ListView<>(this.participants);
         participantsListView.setMaxHeight(150);
     }
@@ -75,8 +91,8 @@ public class EditForm extends Node {
         root.setPadding(new Insets(10));
         root.setMinSize(310, 410);
         root.setMaxSize(310, 1000);
-        title.setFont(Font.font(18));
-        root.getChildren().add(title);
+        titleTextField.setFont(Font.font(18));
+        root.getChildren().add(titleTextField);
 
         HBox hbox1 = new HBox();
 
@@ -114,7 +130,9 @@ public class EditForm extends Node {
         root.getChildren().add(hb2);
         root.setStyle("-fx-border-color: gray; -fx-border-radius: 10; -fx-background-radius: 12;");
 
-        errorLabel = new Label("Some error");
+        root.getChildren().add(roomChoiceBox);
+
+        errorLabel = new Label();
         errorLabel.setTextFill(Paint.valueOf("red"));
         errorLabel.setVisible(false);
         root.getChildren().add(errorLabel);
@@ -125,12 +143,6 @@ public class EditForm extends Node {
     private Label CreateLabel(String text){
         var label = new Label(text);
         label.setFont(Font.font(18));
-        return label;
-    }
-
-    private Label CreateLabel(String text, Long fontSize){
-        var label = new Label(text);
-        label.setFont(Font.font(fontSize));
         return label;
     }
 
@@ -147,7 +159,7 @@ public class EditForm extends Node {
         participants.removeAll(selected);
     }
 
-    public void Validate(){
+    public boolean Validate(){
         String error = "";
 
         LocalDate startDate = startDatePicker.getValue();
@@ -172,13 +184,37 @@ public class EditForm extends Node {
             if (duration > 1440 ) error += "\nToo long event duration";
         }
         if (participants.size() < 2) error += "\nToo few participants";
+        if (titleTextField.getText().isEmpty()) error += "\nInvalid title";
 
         if (error.length() > 0){
             errorLabel.setVisible(true);
             errorLabel.setText(error);
+            return false;
         }
         else errorLabel.setVisible(false);
+        return true;
     }
 
+    public void UpdateEntry(){
+        entry.setTitle(titleTextField.getText());
+        entry.setLocation(roomChoiceBox.getValue());
+        entry.setInterval(LocalDateTime.of(startDatePicker.getValue(), startTimePicker.getValue()), LocalDateTime.of(endDatePicker.getValue(), endTimePicker.getValue()));
+    }
 
+    public void UpdateMeet(){
+        meet.Update(this);
+    }
+
+    public Entry<Meet> CreateEntry(){
+        Entry<Meet> entry = new Entry<>(titleTextField.getText(), new Interval(LocalDateTime.of(
+                startDatePicker.getValue(), startTimePicker.getValue()), LocalDateTime.of(endDatePicker.getValue(),
+                endTimePicker.getValue())));
+        entry.setUserObject(meet);
+        return entry;
+    }
+
+    public void Hide(){
+        layout.getChildren().removeAll();
+        layout.setVisible(false);
+    }
 }
