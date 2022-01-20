@@ -28,6 +28,16 @@ public class WeekPage extends com.calendarfx.view.page.WeekPage{
     }
 
     private void init(){
+        var weekDayViewFactory = getDetailedWeekView().getWeekView().getWeekDayViewFactory();
+
+        getDetailedWeekView().getWeekView().setWeekDayViewFactory(param -> {
+            var weekDayView = weekDayViewFactory.call(param);
+
+            weekDayView.setEntryViewFactory(DayEntryView::new);
+
+            return weekDayView;
+        });
+
         setEntryEditPolicy(param -> {
             var editOperation = param.getEditOperation();
 
