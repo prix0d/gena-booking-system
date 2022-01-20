@@ -39,7 +39,6 @@ public class EditController implements Initializable {
     private HBox formRoot;
 
     private Button cancelButton;
-    private Button deleteButton;
     private Button saveButton;
     private ImageView plus;
 
@@ -55,7 +54,7 @@ public class EditController implements Initializable {
         }
         else {
             ef1 = new EditForm();
-        };
+        }
         HBox hb1 = new HBox();
         formRoot = hb1;
         VBox node = ef1.CreateLayout();
@@ -71,13 +70,13 @@ public class EditController implements Initializable {
         hb2.setSpacing(20);
         cancelButton = new Button("Cancel");
         cancelButton.setOnAction(event -> {
+            Database.meet = null;
             SceneChanger.ChangeScene((Stage) root.getScene().getWindow(), "main");
         });
-        deleteButton = new Button("Delete event");
         saveButton = new Button("Save");
         saveButton.setOnAction(event -> Save());
 
-        hb2.getChildren().addAll(cancelButton, deleteButton, saveButton);
+        hb2.getChildren().addAll(cancelButton, saveButton);
         root.getChildren().add(hb2);
         hb2.setPadding(new Insets(50, 0, 0, 0));
 
@@ -107,12 +106,12 @@ public class EditController implements Initializable {
     }
 
     private void AddEditForm(HBox root){
-        var entry = new Entry<Meet>();
+        var entry = new Entry<Meet>("Room 1");
         var meet = new Meet(entry);
         entry.setUserObject(meet);
         EditForm ef = new EditForm(entry);
         VBox node = ef.CreateLayout();
-        root.getChildren().add(forms.size()-1, node);
+        root.getChildren().add(forms.size(), node);
         boxes.add(new Box(node, ef));
         forms.add(ef);
 
@@ -128,10 +127,13 @@ public class EditController implements Initializable {
                 if(Database.TryUpdateEntry(form)) {
                     System.out.println(Database.data.size());
                     formRoot.getChildren().remove(box.node);
+                    forms.remove(box.form);
+                    formRoot.getChildren().remove(box.node);
                 }
-                formRoot.getChildren().remove(box.node);
+                if (forms.size() == 0){
+                    SceneChanger.ChangeScene((Stage) root.getScene().getWindow(), "main");
+                }
             }
         }
-
     }
 }

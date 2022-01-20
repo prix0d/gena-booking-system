@@ -54,7 +54,7 @@ public class Database {
         });
         ArrayList<Entry<Meet>> events2 = new ArrayList<>(events);
         events.forEach(event -> {
-            if (event.getLocation() == entry.getLocation()) events2.add(event);
+            if (event.getTitle() == entry.getTitle()) events2.add(event);
         });
         if (events2.size() > 0){
             for (int i = 0; i < events2.size(); i++){
@@ -66,7 +66,9 @@ public class Database {
                 LocalDateTime eventStartDateTime = LocalDateTime.of(eventStartDate, eventStartTime);
                 LocalDateTime eventEndDateTime = LocalDateTime.of(eventEndDate, eventEndTime);
 
-                if (entry.intersects(event)) return false;
+                if (entry.intersects(event)) {
+                    if (entry.getTitle() == event.getTitle()) return false;
+                }
 //                if (entryStartDateTime.isAfter(eventStartDateTime) && entryEndDateTime.isBefore(eventEndDateTime)) return false;
 //                if (entryEndDateTime.isAfter(entryStartDateTime) || entryStartDateTime.isBefore(eventStartDateTime)) return false;
 //            var duration = new Interval(startDateTime, endDateTime).getDuration().getSeconds() / 60;
@@ -90,7 +92,10 @@ public class Database {
                 meet.id = newEntry.getId();
                 return true;
             }
-            else return false;
+            else {
+                WeeklyCalendar.calendar.addEntry(entry);
+                return false;
+            }
         }
         else {
             editForm.UpdateEntry();

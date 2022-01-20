@@ -4,10 +4,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import prixod.meeting_room.MainApp;
 import prixod.meeting_room.SceneChanger;
@@ -29,16 +28,24 @@ public class LoginController implements Initializable {
 
     @FXML
     private CheckBox showPasswordCheckbox;
+    @FXML
+    private VBox root;
+    private Label errorLabel;
 
 
     public void initialize(URL location, ResourceBundle resources) {
-//        screenController = new ScreenController();
+        loginField.setText("prixod");
+        passwordField.setText("12345");
         logInButton.setOnAction(event -> HandleLogin());
+        errorLabel = new Label();
+        errorLabel.setTextFill(Paint.valueOf("red"));
+        root.getChildren().add(errorLabel);
     }
 
     private void HandleLogin(){
-        System.out.println("login handler");
-//        if (Database.CheckCreds(loginField.getText(), passwordField.getText())) ChangeScene()
-        SceneChanger.ChangeScene((Stage) logInButton.getScene().getWindow(), "main");
+        if(!Database.CheckCreds(loginField.getText(), passwordField.getText())){
+            errorLabel.setText("Invalid login data");
+        }
+        else SceneChanger.ChangeScene((Stage) logInButton.getScene().getWindow(), "main");
     }
 }

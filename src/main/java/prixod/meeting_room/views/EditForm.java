@@ -40,14 +40,16 @@ public class EditForm extends Node {
     public EditForm(Entry<Meet> entry){
         LoadParams(entry);
         layout = CreateLayout();
+        Database.entry = null;
     }
 
     public EditForm(){
-        var entry = new Entry<Meet>();
+        var entry = new Entry<Meet>("Room 1");
         Meet meet = new Meet(entry);
         entry.setUserObject(meet);
         LoadParams(entry);
         layout = CreateLayout();
+        Database.entry = null;
     }
 
     private void LoadParams(Entry<Meet> entry){
@@ -67,8 +69,8 @@ public class EditForm extends Node {
         endTimePicker = new TimeField();
         endTimePicker.setValue(entry.getEndTime());
         roomChoiceBox = new ChoiceBox<>(Database.rooms);
-        if (entry.getLocation() == null) roomChoiceBox.setValue(roomChoiceBox.getItems().get(0));
-        else roomChoiceBox.setValue(entry.getLocation());
+        roomChoiceBox.setValue(entry.getTitle());
+//        else roomChoiceBox.setValue(entry.getTitle());
         participantsListView = new ListView<>(this.participants);
         participantsListView.setMaxHeight(150);
     }
@@ -88,11 +90,14 @@ public class EditForm extends Node {
         endTimePicker.setMaxSize(140, 25);
 
         var root = new VBox();
+        root.getChildren().add(CreateLabel("Location"));
+        root.getChildren().add(roomChoiceBox);
+        roomChoiceBox.setMinWidth(290);
         root.setPadding(new Insets(10));
         root.setMinSize(310, 410);
         root.setMaxSize(310, 1000);
-        titleTextField.setFont(Font.font(18));
-        root.getChildren().add(titleTextField);
+//        titleTextField.setFont(Font.font(18));
+//        root.getChildren().add(titleTextField);
 
         HBox hbox1 = new HBox();
 
@@ -130,12 +135,11 @@ public class EditForm extends Node {
         root.getChildren().add(hb2);
         root.setStyle("-fx-border-color: gray; -fx-border-radius: 10; -fx-background-radius: 12;");
 
-        root.getChildren().add(roomChoiceBox);
-
         errorLabel = new Label();
         errorLabel.setTextFill(Paint.valueOf("red"));
         errorLabel.setVisible(false);
         root.getChildren().add(errorLabel);
+        root.setStyle("-fx-background-color: white; -fx-background-radius: 15");
 
         return root;
     }
@@ -196,8 +200,8 @@ public class EditForm extends Node {
     }
 
     public void UpdateEntry(){
-        entry.setTitle(titleTextField.getText());
-        entry.setLocation(roomChoiceBox.getValue());
+        entry.setTitle(roomChoiceBox.getValue());
+//        entry.setLocation(roomChoiceBox.getValue());
         entry.setInterval(LocalDateTime.of(startDatePicker.getValue(), startTimePicker.getValue()), LocalDateTime.of(endDatePicker.getValue(), endTimePicker.getValue()));
     }
 
@@ -206,15 +210,10 @@ public class EditForm extends Node {
     }
 
     public Entry<Meet> CreateEntry(){
-        Entry<Meet> entry = new Entry<>(titleTextField.getText(), new Interval(LocalDateTime.of(
+        Entry<Meet> entry = new Entry<>(roomChoiceBox.getValue(), new Interval(LocalDateTime.of(
                 startDatePicker.getValue(), startTimePicker.getValue()), LocalDateTime.of(endDatePicker.getValue(),
                 endTimePicker.getValue())));
         entry.setUserObject(meet);
         return entry;
-    }
-
-    public void Hide(){
-        layout.getChildren().removeAll();
-        layout.setVisible(false);
     }
 }

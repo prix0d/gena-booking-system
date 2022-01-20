@@ -39,7 +39,7 @@ public class DataGenerator {
     }
 
     private static void CreateEntry(Interval interval){
-        Entry<Meet> entry = new Entry<>("Meet", interval);
+        Entry<Meet> entry = new Entry<>(rooms.get(ThreadLocalRandom.current().nextInt(0, 4 + 1)), interval);
         entry.setLocation(rooms.get(ThreadLocalRandom.current().nextInt(0, 4 + 1)));
         Meet meet = new Meet(entry);
         int participantsCount = ThreadLocalRandom.current().nextInt(2, 8 + 1);

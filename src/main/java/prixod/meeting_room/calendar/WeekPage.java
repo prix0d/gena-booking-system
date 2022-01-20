@@ -28,6 +28,7 @@ public class WeekPage extends com.calendarfx.view.page.WeekPage{
     }
 
     private void init(){
+
         var weekDayViewFactory = getDetailedWeekView().getWeekView().getWeekDayViewFactory();
 
         getDetailedWeekView().getWeekView().setWeekDayViewFactory(param -> {
@@ -41,7 +42,7 @@ public class WeekPage extends com.calendarfx.view.page.WeekPage{
         setEntryEditPolicy(param -> {
             var editOperation = param.getEditOperation();
 
-            return !editOperation.equals(EditOperation.CHANGE_START) && !editOperation.equals(EditOperation.CHANGE_END);
+            return false;
         });
 
         setContextMenuCallback(param -> {
@@ -49,17 +50,14 @@ public class WeekPage extends com.calendarfx.view.page.WeekPage{
             createOption.setOnAction(event -> {
                 Stage stage = (Stage) this.getScene().getWindow();
                 try {
-                    Parent pane = FXMLLoader.load(MainApp.class.getResource("edit.fxml"));
-                    stage.setScene(new Scene(pane));
-                    stage.setMaximized(true);
-                    stage.show();
+                    SceneChanger.ChangeScene(stage, "edit");
 
                     Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
                     stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
                     stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
                     Entry<Meet> entry = new Entry<Meet>();
 
-                } catch (IOException e) {
+                } catch (Error e) {
                     e.printStackTrace();
                 }
             });
@@ -78,15 +76,12 @@ public class WeekPage extends com.calendarfx.view.page.WeekPage{
                 Database.entry = (Entry<Meet>) entry;
                 Stage stage = (Stage) this.getScene().getWindow();
                 try {
-                    Parent pane = FXMLLoader.load(MainApp.class.getResource("edit.fxml"));
-                    stage.setScene(new Scene(pane));
-                    stage.setMaximized(true);
-                    stage.show();
+                    SceneChanger.ChangeScene(stage, "edit");
 
                     Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
                     stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
                     stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
-                } catch (IOException e) {
+                } catch (Error e) {
                     e.printStackTrace();
                 }
 
@@ -101,5 +96,9 @@ public class WeekPage extends com.calendarfx.view.page.WeekPage{
             ContextMenu contextMenu = new ContextMenu(editOption, deleteOption);
             return contextMenu;
         });
+
+        setEntryDetailsCallback(param -> {return null;});
+
+        setEntryFactory(event -> null);
     }
 }

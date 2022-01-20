@@ -9,6 +9,7 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:id="borderPane"
-            fx:controller="prixod.meeting_room.controllers.MainController">
+            fx:controller="prixod.meeting_room.controllers.MainController"
+            style="-fx-background-color: linear-gradient(to top, black, #FFF427);">
 
 </BorderPane>

@@ -20,7 +20,8 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         calendar = new WeeklyCalendar();
-        calendar.getWeekPage().setPadding(new Insets(50));
+        calendar.getWeekPage().setStyle("-fx-background-radius: 20;");
+        borderPane.setPadding(new Insets(50));
         borderPane.setCenter(calendar.getWeekPage());
     }
 }

@@ -68,7 +68,7 @@ public class Meet {
     }
 
     public void Update(EditForm editForm){
-        name = editForm.titleTextField.getText();
+        name = editForm.roomChoiceBox.getValue();
         location = editForm.roomChoiceBox.getValue();
         start = LocalDateTime.of(editForm.startDatePicker.getValue(), editForm.startTimePicker.getValue());
         end = LocalDateTime.of(editForm.endDatePicker.getValue(), editForm.endTimePicker.getValue());
