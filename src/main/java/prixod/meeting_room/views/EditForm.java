@@ -1,15 +1,13 @@
 package prixod.meeting_room.views;
 
 import com.calendarfx.model.Entry;
+import com.calendarfx.model.Interval;
 import com.calendarfx.view.TimeField;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.ObservableListBase;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
@@ -17,7 +15,10 @@ import javafx.scene.text.Font;
 import prixod.meeting_room.database.Database;
 import prixod.meeting_room.database.Meet;
 
-import java.util.ArrayList;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
 
 public class EditForm extends Node {
     private Entry<Meet> entry;
@@ -29,15 +30,16 @@ public class EditForm extends Node {
     public TimeField startTimePicker;
     public TimeField endTimePicker;
     public ChoiceBox<String> roomChoiceBox;
-    public ListView<String> participantsList;
+    public ListView<String> participantsListView;
+    public TextField participantTextField;
     public Button participantRemoveButton;
     public Button participantAddButton;
+    public Label errorLabel;
 
     public EditForm(Entry<Meet> entry){
         this.entry = entry;
         this.meet = (Meet) entry.getUserObject();
-        this.participants = FXCollections.observableArrayList();
-        this.participants.addAll(meet.participants);
+        this.participants = FXCollections.observableArrayList(meet.participants);
         LoadParams();
         CreateLayout();
     }
@@ -51,7 +53,8 @@ public class EditForm extends Node {
         endTimePicker = new TimeField();
         endTimePicker.setValue(entry.getEndTime());
         roomChoiceBox = new ChoiceBox<>(Database.rooms);
-        participantsList = new ListView<>(meet.participants);
+        participantsListView = new ListView<>(this.participants);
+        participantsListView.setMaxHeight(150);
     }
 
     public VBox CreateLayout(){
@@ -59,6 +62,9 @@ public class EditForm extends Node {
         endDatePicker.setMinSize(140, 25);
         startTimePicker.setMinSize(140, 25);
         endTimePicker.setMinSize(140, 25);
+
+        endDatePicker.setShowWeekNumbers(false);
+        startDatePicker.setShowWeekNumbers(false);
 
         startDatePicker.setMaxSize(140, 25);
         endDatePicker.setMaxSize(140, 25);
@@ -68,7 +74,7 @@ public class EditForm extends Node {
         var root = new VBox();
         root.setPadding(new Insets(10));
         root.setMinSize(310, 410);
-        root.setMaxSize(310, 410);
+        root.setMaxSize(310, 1000);
         title.setFont(Font.font(18));
         root.getChildren().add(title);
 
@@ -91,20 +97,27 @@ public class EditForm extends Node {
         Label lb1 = CreateLabel("Participants");
         lb1.setPadding(new Insets(20,0,0,0));
         root.getChildren().add(lb1);
-        root.getChildren().add(new ListView<>());
+        root.getChildren().add(participantsListView);
 
         HBox hb2 = new HBox();
         hb2.setSpacing(10);
         hb2.setPadding(new Insets(10,0,0,0));
-        TextField tf = new TextField();
-        tf.setMinWidth(150);
-        tf.setMaxWidth(150);
+        participantTextField = new TextField();
+        participantTextField.setMinWidth(150);
+        participantTextField.setMaxWidth(150);
         participantRemoveButton = new Button("Remove");
         participantAddButton = new Button("Add");
-        hb2.getChildren().addAll(tf, participantAddButton, participantRemoveButton);
+        participantAddButton.setOnAction(event -> AddParticipant());
+        participantRemoveButton.setOnAction(event -> RemoveParticipant());
+        hb2.getChildren().addAll(participantTextField, participantAddButton, participantRemoveButton);
 
         root.getChildren().add(hb2);
         root.setStyle("-fx-border-color: gray; -fx-border-radius: 10; -fx-background-radius: 12;");
+
+        errorLabel = new Label("Some error");
+        errorLabel.setTextFill(Paint.valueOf("red"));
+        errorLabel.setVisible(false);
+        root.getChildren().add(errorLabel);
 
         return root;
     }
@@ -120,4 +133,52 @@ public class EditForm extends Node {
         label.setFont(Font.font(fontSize));
         return label;
     }
+
+    private void AddParticipant(){
+        String participant = participantTextField.getText();
+        if (participant.length() > 0) {
+            participants.add(participant);
+        }
+        participantTextField.setText("");
+    }
+
+    private void RemoveParticipant(){
+        List<String> selected = participantsListView.getSelectionModel().getSelectedItems();
+        participants.removeAll(selected);
+    }
+
+    public void Validate(){
+        String error = "";
+
+        LocalDate startDate = startDatePicker.getValue();
+        LocalDate endDate = endDatePicker.getValue();
+
+        LocalTime startTime = startTimePicker.getValue();
+        LocalTime endTime = endTimePicker.getValue();
+
+        LocalDateTime startDateTime = LocalDateTime.of(startDate, startTime);
+        LocalDateTime endDateTime = LocalDateTime.of(endDate, endTime);
+
+
+        if (endDate.isBefore(startDate)) error += "\nInvalid dates";
+        else if (endDate.equals(startDate)){
+            if (endTime.isBefore(startTime)) error += "\nInvalid time";
+            var duration = (endTime.toSecondOfDay() - startTime.toSecondOfDay()) / 60;
+            if (duration < 30) error += "\nToo short event duration";
+        }
+        else {
+            var duration = new Interval(startDateTime, endDateTime).getDuration().getSeconds() / 60;
+            if (duration < 30 ) error += "\nToo short event duration";
+            if (duration > 1440 ) error += "\nToo long event duration";
+        }
+        if (participants.size() < 2) error += "\nToo few participants";
+
+        if (error.length() > 0){
+            errorLabel.setVisible(true);
+            errorLabel.setText(error);
+        }
+        else errorLabel.setVisible(false);
+    }
+
+
 }

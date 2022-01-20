@@ -5,22 +5,28 @@ import com.calendarfx.model.Interval;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import prixod.meeting_room.MainApp;
 import prixod.meeting_room.calendar.WeeklyCalendar;
 import prixod.meeting_room.database.Database;
 import prixod.meeting_room.database.Meet;
 import prixod.meeting_room.views.EditForm;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.Timestamp;
 import java.util.ResourceBundle;
@@ -53,6 +59,8 @@ public class EditController implements Initializable {
         cancelButton = new Button("Cancel");
         deleteButton = new Button("Delete event");
         saveButton = new Button("Save");
+        saveButton.setOnAction(event -> Save());
+
         hb2.getChildren().addAll(cancelButton, deleteButton, saveButton);
         root.getChildren().add(hb2);
         hb2.setPadding(new Insets(50, 0, 0, 0));
@@ -65,7 +73,6 @@ public class EditController implements Initializable {
         plus.setCursor(Cursor.HAND);
 
         hb1.getChildren().add(plus);
-//        plus.setOnMouseClicked(event -> TestAddChild(hb1));
         plus.setOnMouseClicked(event -> AddEditForm(hb1));
     }
 
@@ -80,8 +87,20 @@ public class EditController implements Initializable {
         if (forms.size() == 3) root.getChildren().remove(3);
     }
 
-    private void TestAddChild(HBox root){
-        Label label = new Label("Test label");
-        root.getChildren().add(label);
+    private void RouteToMain(){
+        Stage stage = (Stage) root.getScene().getWindow();
+        Parent pane;
+        try {
+            pane = FXMLLoader.load(MainApp.class.getResource("main.fxml"));
+            stage.setScene(new Scene(pane));
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void Save(){
+        forms.forEach(EditForm::Validate);
     }
 }
